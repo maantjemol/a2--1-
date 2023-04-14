@@ -1,26 +1,22 @@
-import typing
 import unittest
 import numpy as np
-import random
 from divconq import IntelDevice
 
+# generates an m x n grid
 def generate_grid(m, n):
-    random.seed(9001)
     x = 0
     grid = [[0 for j in range(n)] for i in range(m)]
     for i in range(m):
         for j in range(n):
             grid[i][j] = x
-            x += 1 + random.randint(0, 1)
+            x += 1
     return grid
 
-
-
 class TestIntelDevice(unittest.TestCase):
-
+    # testing a 200 x 200 array to see if our algoritm can handle big arrays. We wrote a function to generate the grid used for this. 
     def test_big_grid(self):
         a = np.array(
-            generate_grid(100, 100)
+            generate_grid(200, 200)
         )
         c_shift = 2
 
@@ -28,7 +24,7 @@ class TestIntelDevice(unittest.TestCase):
         raw_locations = [f"l{i}" for i in range(len(a) * len(a[0]))]
         raw_codes = [str(x) for x in a.reshape(-1)]
 
-
+        # builds the enc_locations array based on the grid
         enc_locations = []
         for i in raw_locations:
             bit_string = ""
@@ -36,7 +32,7 @@ class TestIntelDevice(unittest.TestCase):
                 bit_string += '{0:b} '.format(ord(letter) + c_shift)
             enc_locations.append(bit_string[:-1])
 
-
+        # builds the enc_codes array based on the grid
         enc_codes = []
         for i in raw_codes:
             bit_string = ""
@@ -51,15 +47,16 @@ class TestIntelDevice(unittest.TestCase):
 
         print(ob.loc_grid)
 
-        
+        # enumerates over every value in the grid, searches for the value and checks if it is correct
         for vid, v in enumerate(a.reshape(-1)):
             result = ob.start_search(v)
             self.assertEqual(result, enc_locations[vid])
 
 
     def test_one_row_grid(self):
+        # testing a 1 x 20 array, also using a negative value
         a = np.array([
-            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+            [-1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
         ])
         c_shift = 2
 
@@ -67,7 +64,7 @@ class TestIntelDevice(unittest.TestCase):
         raw_locations = [f"l{i}" for i in range(len(a) * len(a[0]))]
         raw_codes = [str(x) for x in a.reshape(-1)]
 
-
+        # builds the enc_locations array based on the grid
         enc_locations = []
         for i in raw_locations:
             bit_string = ""
@@ -75,7 +72,7 @@ class TestIntelDevice(unittest.TestCase):
                 bit_string += '{0:b} '.format(ord(letter) + c_shift)
             enc_locations.append(bit_string[:-1])
 
-
+        # builds the enc_codes array based on the grid
         enc_codes = []
         for i in raw_codes:
             bit_string = ""
@@ -90,7 +87,7 @@ class TestIntelDevice(unittest.TestCase):
 
         print(ob.loc_grid)
 
-        
+        # enumerates over every value in the grid, searches for the value and checks if it is correct
         for vid, v in enumerate(a.reshape(-1)):
             result = ob.start_search(v)
             self.assertEqual(result, enc_locations[vid])

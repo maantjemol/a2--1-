@@ -6,7 +6,6 @@ from divconq import IntelDevice
 
 
 class TestIntelDevice(unittest.TestCase):
-
     def test_encode_message(self):
         # without caesar shift
         ob = IntelDevice(3,5,[],[],0)

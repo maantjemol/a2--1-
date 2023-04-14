@@ -174,8 +174,8 @@ class IntelDevice:
 
         
         # Check if the midpoint value is the same as the value we are searching for.
+        self.scanned_cells += 1
         if mid_value == value:
-            self.scanned_cells += 1
             # Return a tuple containing the x and y coordinates of the matching value.
             return (y_mid, x_mid)
 
@@ -187,7 +187,6 @@ class IntelDevice:
         # If the midpoint value is greater than the search value, 
         # recursively search the sub-range to the top left of the midpoint.
         if value < mid_value:
-            self.scanned_cells += (x_to - x_from) * (y_to - y_from)
             result = self.divconq_search(value, x_from, x_to, y_from, y_mid -1)
             if result is not None:
                 return result
@@ -199,7 +198,6 @@ class IntelDevice:
         # If the midpoint value is less than the search value,
         # recursively search the sub-ranges to the right and below the midpoint.
         else: # value > mid_value
-            self.scanned_cells += (x_to - x_from) * (y_to - y_from)
             result = self.divconq_search(value, x_mid + 1, x_to, y_from, y_mid)
             if result is not None:
                 return result

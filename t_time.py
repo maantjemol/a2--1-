@@ -1,19 +1,17 @@
 import typing
 import unittest
 import numpy as np
-import random
 from divconq_shit import IntelDevice
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 
 def generate_grid(m, n):
-    random.seed(9001)
     x = 0
     grid = [[0 for j in range(n)] for i in range(m)]
     for i in range(m):
         for j in range(n):
             grid[i][j] = x
-            x += 1 + random.randint(0, 1)
+            x += 2
     return grid
 
 
@@ -83,14 +81,18 @@ fig, ax = plt.subplots()
 ax.bar(x, data['divconq'], color='b', width=0.35, label='Divide and Conquer')
 ax.bar(x, data['forloop'], color='r', width=0.35, bottom=data['divconq'], label='For Loop')
 
-ax.set_ylabel('Time (s)')
+ax.set_ylabel('Cells checked')
 ax.set_xlabel('Input Size')
 ax.set_title('Comparison of Divide and Conquer vs. For Loop')
 ax.legend()
-ax.set_yscale('log')
 
-# manually set the positions of the y-axis ticks to powers of 10
-ax.set_yticks([10**i for i in range(0, 7)])
+
+log = False
+if log:
+    ax.set_yscale('log')
+
+    # manually set the positions of the y-axis ticks to powers of 10
+    ax.set_yticks([10**i for i in range(0, 7)])
 plt.show()
 
 

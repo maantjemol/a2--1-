@@ -49,10 +49,17 @@ class IntelDevice:
         Returns: the encoded message
         """
 
+        # Initialize an empty string to store the bitstring representation of the encoded message
         bit_string = ""
+
+        # Loop through each character in the input string, add the Caesar shift and encode the character
         for letter in msg:
-            bit_string += '{0:b} '.format(ord(letter) + self.caesar_shift)
+            encoded = ord(letter) + self.caesar_shift
+            bit_string += '{0:b} '.format(encoded)
+
+        # Remove the last space from the bit_string variable and return the encoded message
         return bit_string[:-1]
+
 
     
     def decode_message(self, msg: str) -> str:
@@ -65,11 +72,16 @@ class IntelDevice:
         
         Returns: the decoded message
         """
-
+        
         original_msg = ""
+        
+        # Convert the binary value to an integer and subtract the Caesar shift to get the original value
         for i in msg.split(" "):
-          original_msg += chr(int(i, 2) - self.caesar_shift)
+            original_ascii = int(i, 2) - self.caesar_shift
+            original_msg += chr(original_ascii)
+        
         return original_msg
+
 
 
     def fill_coordinate_to_loc(self):
@@ -79,21 +91,21 @@ class IntelDevice:
         around the rows of self.loc_grid from left to right and top to bottom. For example, if we have a 2x2 loc_grid and 
         self.enc_locations = [self.encode_message('a'), self.encode_message('b'), self.encode_message('c'), self.encode_message('d')], 
         then the mapping should be:
-          (0,0) -> 'a'
-          (0,1) -> 'b'
-          (1,0) -> 'c'
-          (1,1) -> 'd'
+        (0,0) -> 'a'
+        (0,1) -> 'b'
+        (1,0) -> 'c'
+        (1,1) -> 'd'
 
         The function does not return anything. It simply fills the self.coordinate_to_location data structure with the right mapping.
         """
-
         x = 0
         for i in range(self.height):
-            for j in range(self.width):
-                loc = self.enc_locations[x]
-                self.coordinate_to_location[(i, j)] = self.decode_message(loc)
+            for j in range(self.width): 
+                # get the encoded location at index x
+                loc = self.enc_locations[x] 
+                # map the (i,j) coordinate to the decoded location
+                self.coordinate_to_location[(i, j)] = self.decode_message(loc) 
                 x += 1
-
             
 
     def fill_loc_grid(self):
@@ -103,15 +115,17 @@ class IntelDevice:
         from left to right, and from top to bottom. For example, if we have 
         self.enc_codes = [self.encode_message('10'), self.encode_message('15'), self.encode_message('11'), self.encode_message('16')],
         the following loc_grid should be created/filled in:
-          [[10,15],
-           [11,16]]
+        [[10,15],
+        [11,16]]
 
         The function does not return anything. It simply fills the self.loc_grid data structure with the decoded codes.
         """
-
+        
         x = 0
+        # Loop over each row and column in the loc_grid
         for i in range(self.height):
             for j in range(self.width):
+                # Decode the message and set the value of the loc_grid at row i and column j to the decoded message
                 p = self.decode_message(self.enc_codes[x])
                 self.loc_grid[i][j] = p
                 x += 1
@@ -146,44 +160,28 @@ class IntelDevice:
         """
         # Check for cases where no matching value can be found:
         #   - the search range is empty (x_from > x_to or y_from > y_to)
-        #   - the value we are searching for is greater than the largest value in the search range.
+        #   - the value we are searching for is greater or smaller than the largest or smallest value in the current grid.
         if (x_from > x_to or y_from > y_to or
-            value > self.loc_grid[(y_to, x_to)] or
-            value < self.loc_grid[(y_from, x_from)]):
-            # Return None to indicate that the value was not found in the search range.
+            value > self.loc_grid[(y_to, x_to)] or #larger
+            value < self.loc_grid[(y_from, x_from)]): #smaller 
+            # Return None to indicate that the value was not found in the grid
             return None
 
-        # Calculate the midpoint of the search range.
+        # Calculate the midpoint of the grid
         x_mid = (x_from + x_to) // 2
         y_mid = (y_from + y_to) // 2
         mid_value = self.loc_grid[(y_mid, x_mid)]
 
-        # print(
-        # f"""
-        #     x_from = {x_from}
-        #     x_to = {x_to}    
-        #     y_from = {y_from}
-        #     y_to = {y_to}    
-        #     x_mid = {x_mid}
-        #     y_mid = {y_mid}  
-        #     value = {value}
-        #     mid_value = {mid_value}
-        # """
-        # )
-
         
-        # Check if the midpoint value is the same as the value we are searching for.
+        # Check if we found the value
         if mid_value == value:
-            # Return a tuple containing the x and y coordinates of the matching value.
             return (y_mid, x_mid)
 
-        # Check if there are any further subranges to search. This prevents looping
+        # This prevents looping, we dont search if the grid is 1x1 and the value is not found above
         if (x_from == x_to and  y_from == y_to):
-            # Return None to indicate that the value was not found in the search range.
             return None
         
-        # If the midpoint value is greater than the search value, 
-        # recursively search the sub-range to the top left of the midpoint.
+        # If the midpoint value is greater than the search value, recursively search the sub-grids to the top and the left of the midpoint.
         if value < mid_value:
             result = self.divconq_search(value, x_from, x_to, y_from, y_mid -1)
             if result is not None:
@@ -193,8 +191,7 @@ class IntelDevice:
             if result is not None:
                 return result
 
-        # If the midpoint value is less than the search value,
-        # recursively search the sub-ranges to the right and below the midpoint.
+        # If the midpoint value is less than the search value, recursively search the sub-grids to the right and below the midpoint.
         else: # value > mid_value
             result = self.divconq_search(value, x_mid + 1, x_to, y_from, y_mid)
             if result is not None:
